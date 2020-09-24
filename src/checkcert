@@ -10,12 +10,18 @@ function downloadCerts {
 	echo "Downloading cert"
 	temp_certfile="$certname.$$.crt"
 	temp_keyfile="$certname.$$.key"
-        az keyvault certificate download --vault-name $keyvault --name $certname --f $temp_certfile
-	az keyvault secret download --vault-name $keyvault --name $certname --f $temp_keyfile
+	temp_pfxfile="$certname.$$.pfx"
+        # az keyvault certificate download --vault-name $keyvault --name $certname --f $temp_certfile
+	az keyvault secret download --vault-name $keyvault --name $certname --f $temp_pfxfile
+	cat $temp_pfxfile | base64 -d > $pfxfile
+
+	echo "Exporting key"
+	openssl pkcs12 -in $pfxfile -nocerts -out $temp_keyfile -passin pass:
+	echo "Exporting cert"
+	openssl pkcs12 -in $pfxfile -clcerts -nokeys -out $temp_certfile -password pass:
 	mv -f $temp_certfile $certfile
 	mv -f $temp_keyfile $keyfile
-	echo "Exporting pfx"
-	openssl pkcs12 -export -out $pfxfile -inkey $keyfile -in $certfile
+	rm $temp_pfxfile
 }
 
 if test -f "$certfile"; then
