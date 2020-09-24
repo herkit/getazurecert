@@ -1,0 +1,57 @@
+#!/bin/bash
+#!/bin/bash
+
+while [ $# -gt 0 ]; do
+	if [[ $1 == *"--"* ]]; then
+		param=$(echo "${1/--/}" | sed -r 's/[-]+/_/g')
+		declare $param="$2"
+		# echo $1 $2 // Optional to see the parameter:value result
+	fi
+        shift
+done
+
+# keyvault=$1
+# certname=$2
+
+cert_file=${cert_file:-"$name.crt"}
+key_file=${key_file:-"$name.key"}
+pfx_file=${pfx_file:-"$name.pfx"}
+
+echo "$cert_file $key_file $pfx_file"
+
+function downloadCerts {
+	echo "Downloading cert"
+	temp_certfile="$name.$$.crt"
+	temp_keyfile="$name.$$.key"
+	temp_pfxfile="$name.$$.pfx"
+	az keyvault secret download --vault-name $vault_name --name $name --f $temp_pfxfile
+	cat $temp_pfxfile | base64 -d > $pfx_file
+
+	echo "Exporting key"
+	openssl pkcs12 -in $pfx_file -nocerts -nodes -out $temp_keyfile -passin pass:
+	echo "Exporting cert"
+	openssl pkcs12 -in $pfx_file -clcerts -nokeys -out $temp_certfile -password pass:
+	mv -f $temp_certfile $cert_file
+	mv -f $temp_keyfile $key_file
+	mv -f $temp_pfxfile $pfx_file
+}
+
+if test -f "$cert_file"; then
+        echo "Certificate exists, checking if it is close to expiration"
+        enddate=$(openssl x509 -enddate -noout -in $cert_file)
+        datepart=${enddate#"notAfter="}
+        endstamp=$(date --date="$datepart" +"%s")
+        echo "Expires: $endstamp"
+        now=$(date +"%s")
+        echo "Now    : $now"
+
+ 	let renewby="$endstamp - (3600 * 24)"
+
+	if [ $now -gt $renewby ]; then
+		echo "Certificate needs to be downloaded"
+		downloadCerts
+	fi
+else
+        echo "Certificate has not been downloaded, attempting to do so now"
+	downloadCerts
+fi
