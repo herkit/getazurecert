@@ -16,7 +16,7 @@ function downloadCerts {
 	cat $temp_pfxfile | base64 -d > $pfxfile
 
 	echo "Exporting key"
-	openssl pkcs12 -in $pfxfile -nocerts -out $temp_keyfile -passin pass:
+	openssl pkcs12 -in $pfxfile -nocerts -nodes -out $temp_keyfile -passin pass:
 	echo "Exporting cert"
 	openssl pkcs12 -in $pfxfile -clcerts -nokeys -out $temp_certfile -password pass:
 	mv -f $temp_certfile $certfile
