@@ -25,9 +25,10 @@ First create a service principal for your computer with access to your keyvault:
 Download script
 ```
 wget https://raw.githubusercontent.com/herkit/getazurecert/master/src/getazurecert
+chmod +x ./getazurecert
 ```
 
 You are now ready to download certs:
-´´´
+```
 ./getazurecert --vault-name $keyvaultname --name my-certificate-name
-´´´
+```
