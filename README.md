@@ -1,5 +1,5 @@
 # getazurecert
-Tool to download certificates form azure keyvault to a linux machine
+Tool to download SSL certificates form Azure KeyVault to a linux machine
 
 ## How to use
 
