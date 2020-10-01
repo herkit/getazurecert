@@ -27,3 +27,11 @@ You are now ready to download certs:
 ```
 ./getazurecert --vault-name $keyvaultname --name my-certificate-name
 ```
+
+This will store the certificate in the current folder as my-certificate-name.crt and my-certificate-name.key.
+
+You can specify filename to download to (and check for expiration) using the options --key-file and --cert-file like this:
+
+```
+./getazurecert --vault-name $keyvaultname --name my-certificate-name --key-file /etc/nginx/ssl/my-site.key --cert-file /etc/nginx/ssl/my-site.crt
+```
