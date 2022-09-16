@@ -44,7 +44,7 @@ if test -f "$cert_file"; then
         now=$(date +"%s")
         echo "Now    : $now"
 
- 	let renewby="$endstamp - (3600 * 24)"
+ 	let renewby="$endstamp - (3600 * 336)"
 
 	if [ $now -gt $renewby ]; then
 		echo "Certificate needs to be downloaded"
